@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import SimpleNavbar from '@/components/layout/simple-navbar';
 
 export const metadata: Metadata = {
   title: 'TrustTrade - Authentication',
@@ -11,8 +12,11 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex h-screen items-center justify-center bg-background">
-      {children}
+    <div className="flex flex-col h-screen bg-background">
+      <SimpleNavbar />
+      <div className="flex-1 flex items-center justify-center">
+        {children}
+      </div>
     </div>
   );
 }
