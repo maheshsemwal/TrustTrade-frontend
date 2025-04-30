@@ -1,45 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
-import { UserPlus } from 'lucide-react';
+import { UserPlus, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function SignupPage() {
-  const [form, setForm] = useState({ username: '', email: '', password: '', walletAddress: '' });
-  const [message, setMessage] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    username: '', // Changed from name to username to match backend
+    email: '',
+    password: '',
+    walletAddress: '',
+    userType: 'buyer' // This is for frontend use
+  });
   
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-  
+  const router = useRouter();
+  const { signup, loading, error, isAuthenticated } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
   const handleChange = e => setForm({ ...form, [e.target.name]: e.target.value });
+  
+  const handleUserTypeChange = (value) => {
+    setForm(prev => ({ ...prev, userType: value }));
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        setMessage('Signup successful!');
-        // optionally store JWT or redirect
-      } else {
-        setMessage(data.msg || data.error || 'Signup failed');
-      }
-    } catch (err) {
-      setMessage('Something went wrong');
-    } finally {
-      setLoading(false);
-    }
+    await signup(form);
   };
 
   return (
@@ -52,11 +51,19 @@ export default function SignupPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Input
                 name="username"
                 placeholder="Username"
+                value={form.username}
                 onChange={handleChange}
                 required
               />
@@ -66,6 +73,7 @@ export default function SignupPage() {
                 name="email"
                 type="email"
                 placeholder="Email"
+                value={form.email}
                 onChange={handleChange}
                 required
               />
@@ -75,14 +83,31 @@ export default function SignupPage() {
                 name="password"
                 type="password"
                 placeholder="Password"
+                value={form.password}
                 onChange={handleChange}
                 required
               />
             </div>
             <div className="space-y-2">
+              <Select 
+                value={form.userType} 
+                onValueChange={handleUserTypeChange}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select User Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="buyer">Buyer</SelectItem>
+                  <SelectItem value="seller">Seller</SelectItem>
+                  <SelectItem value="arbitrator">Arbitrator</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Input
                 name="walletAddress"
                 placeholder="Wallet Address (Optional)"
+                value={form.walletAddress}
                 onChange={handleChange}
               />
             </div>
@@ -90,12 +115,6 @@ export default function SignupPage() {
               <UserPlus className="mr-2 h-4 w-4" />
               {loading ? 'Creating account...' : 'Create Account'}
             </Button>
-            
-            {message && (
-              <div className={`mt-4 text-center text-sm ${message.includes('successful') ? 'text-green-500' : 'text-red-500'}`}>
-                {message}
-              </div>
-            )}
           </form>
         </CardContent>
         <CardFooter className="flex flex-col">

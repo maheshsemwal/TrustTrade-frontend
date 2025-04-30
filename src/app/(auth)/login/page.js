@@ -1,39 +1,36 @@
 'use client';
 
-import { useState } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
-import { Wallet, Mail } from 'lucide-react';
+import { Wallet, Mail, AlertCircle } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
   const [address, setAddress] = useState('');
+  const router = useRouter();
+  
+  // Use our custom authentication hook
+  const { login, loading, error, isAuthenticated } = useAuth();
 
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
 
   // Handle Email Login
   const handleEmailLogin = async (e) => {
     e.preventDefault();
-    try {
-      setLoading(true);
-      const res = await axios.post(`${BACKEND_URL}/api/auth/login`, {
-        email,
-        password,
-      });
-
-      alert(`Welcome ${res.data.user.username}`);
-      // Store token or handle further actions here
-    } catch (err) {
-      alert(err.response?.data?.msg || 'Login failed');
-    } finally {
-      setLoading(false);
-    }
+    await login(email, password);
   };
 
   // Handle MetaMask Login
@@ -44,28 +41,27 @@ export default function LoginPage() {
     }
 
     try {
-      setLoading(true);
-
       // Request user accounts from MetaMask
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-
-      // Get the first account address
       const userAddress = accounts[0];
-
-      // Update state with the user's address
       setAddress(userAddress);
 
-      // Send the MetaMask address to the backend for authentication
-      const response = await axios.post(`${BACKEND_URL}/api/auth/wallet-login`, {
-        walletAddress: userAddress,
+      // In a production app, you would sign a message and verify on the backend
+      // Then login with a JWT token from your backend
+      const message = `Login to TrustTrade with address: ${userAddress}`;
+      const signature = await window.ethereum.request({
+        method: 'personal_sign',
+        params: [message, userAddress],
       });
 
-      alert(`Logged in successfully! Address: ${userAddress}`);
+      // Now you'd verify this on your backend and get a token
+      // For now we'll mock this with our regular login
+      // In a real app, replace with your wallet authentication flow
+      await login(userAddress, signature);
+      
     } catch (error) {
       console.error(error);
       alert('MetaMask login failed');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -79,6 +75,13 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
           <form onSubmit={handleEmailLogin} className="space-y-4">
             <div className="space-y-2">
               <Input
