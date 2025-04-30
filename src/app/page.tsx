@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ShieldCheck, Users, BrainCircuit, Award, FileText, UsersRound, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
+import SimpleNavbar from '@/components/layout/simple-navbar';
 
 export default function Home() {
   const features = [
@@ -29,6 +30,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <SimpleNavbar />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-background to-card">
