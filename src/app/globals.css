@@ -8,6 +8,43 @@ body {
 
 @layer base {
   :root {
+    --background: 0 0% 100%; /* White */
+    --foreground: 218 70% 9%; /* Darker Blue for better text contrast */
+    --card: 210 20% 98%; /* Slightly blue tinted off-white for better distinction */
+    --card-foreground: 218 70% 9%;
+    --popover: 210 20% 98%;
+    --popover-foreground: 218 70% 9%;
+    --primary: 180 100% 35%; /* Stronger Teal for light mode */
+    --primary-foreground: 0 0% 100%; /* White text */
+    --secondary: 210 15% 90%; /* Light blue-gray for better visibility */
+    --secondary-foreground: 218 75% 12%;
+    --muted: 210 15% 90%;
+    --muted-foreground: 218 30% 30%; /* Darker muted text for improved readability */
+    --accent: 180 80% 85%; /* More saturated light Teal */
+    --accent-foreground: 180 100% 25%; /* Darker Teal text for better contrast */
+    --destructive: 0 84% 55%; /* Slightly darker Red */
+    --destructive-foreground: 0 0% 98%;
+    --border: 210 15% 80%; /* Darker border for better visibility */
+    --input: 210 15% 80%; /* Darker input borders */
+    --ring: 180 100% 35%; /* Match primary for focus rings */
+    --chart-1: 180 100% 35%; /* Darker Teal */
+    --chart-2: 210 100% 45%; /* Deeper Blue */
+    --chart-3: 0 0% 40%;   /* Darker Gray for better visibility */
+    --chart-4: 40 100% 45%;  /* Darker Orange */
+    --chart-5: 300 80% 55%; /* Deeper Magenta */
+
+    /* Sidebar for light mode */
+    --sidebar-background: 210 20% 96%; /* Slightly blue tinted for distinction */
+    --sidebar-foreground: 218 70% 9%;
+    --sidebar-primary: 180 100% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 15% 90%;
+    --sidebar-accent-foreground: 218 70% 9%;
+    --sidebar-border: 210 15% 80%;
+    --sidebar-ring: 180 100% 35%;
+  }
+
+  .dark {
     --background: 218 67% 11%; /* Dark Blue */
     --foreground: 0 0% 100%; /* White */
     --card: 218 50% 15%; /* Slightly Lighter Dark Blue */
@@ -32,7 +69,6 @@ body {
     --chart-3: 0 0% 80%;   /* Light Gray */
     --chart-4: 40 100% 60%;  /* Yellow/Orange */
     --chart-5: 300 100% 70%; /* Pink/Purple */
-    --radius: 0.5rem;
 
     /* Sidebar specific colors */
     --sidebar-background: 218 60% 13%; /* Slightly different dark blue */
@@ -43,43 +79,6 @@ body {
     --sidebar-accent-foreground: 0 0% 100%; /* White */
     --sidebar-border: 218 40% 20%; /* Darker border */
     --sidebar-ring: 180 100% 50%; /* Teal */
-  }
-
-  .dark { /* Define light theme under .dark for toggle */
-    --background: 0 0% 100%; /* White */
-    --foreground: 218 67% 11%; /* Dark Blue */
-    --card: 0 0% 98%; /* Off-white */
-    --card-foreground: 218 67% 11%;
-    --popover: 0 0% 98%;
-    --popover-foreground: 218 67% 11%;
-    --primary: 180 100% 40%; /* Darker Teal for light mode */
-    --primary-foreground: 0 0% 100%; /* White text */
-    --secondary: 0 0% 94%; /* Light Gray */
-    --secondary-foreground: 218 67% 11%;
-    --muted: 0 0% 94%;
-    --muted-foreground: 218 20% 40%; /* Darker muted text */
-    --accent: 180 100% 90%; /* Very Light Teal */
-    --accent-foreground: 180 100% 30%; /* Dark Teal text */
-    --destructive: 0 84.2% 60.2%; /* Default Red */
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 180 100% 40%; /* Darker Teal for focus rings */
-    --chart-1: 180 100% 40%; /* Darker Teal */
-    --chart-2: 210 100% 50%; /* Standard Blue */
-    --chart-3: 0 0% 50%;   /* Medium Gray */
-    --chart-4: 40 100% 50%;  /* Orange */
-    --chart-5: 300 100% 60%; /* Magenta */
-
-    /* Sidebar for light mode */
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 218 67% 11%;
-    --sidebar-primary: 180 100% 40%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 94%;
-    --sidebar-accent-foreground: 218 67% 11%;
-    --sidebar-border: 0 0% 89.8%;
-    --sidebar-ring: 180 100% 40%;
   }
 }
 

@@ -104,11 +104,12 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 md:px-6">
+    <div className="py-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold">Dashboard</h1>
          {/* Role Switcher (For Demo / Dev purposes) */}
          {walletAddress && !isLoading && (
+          // @ts-ignore
            <Select onValueChange={(value: UserRole) => handleRoleChange(value)} value={userRole ?? ''}>
             <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Switch Role (Dev)" />

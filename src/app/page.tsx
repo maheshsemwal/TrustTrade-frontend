@@ -32,69 +32,68 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       <SimpleNavbar />
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-background to-card">
-          <div className="container px-4 md:px-6">
+        {/* Hero Section - Enhanced gradient for better visibility */}
+        <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-gradient-to-b from-background to-muted/70 dark:from-background dark:to-card">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-12 xl:grid-cols-[1fr_600px]">
               <div className="flex flex-col justify-center space-y-4">
                 <div className="space-y-2">
-                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                   <h1 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70 dark:from-white dark:to-gray-400">
                     Fast, Fair, Decentralized
                   </h1>
-                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-primary">
+                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl xl:text-6xl/none text-primary drop-shadow-sm">
                     B2B Dispute Resolution
                   </h2>
-                  <p className="max-w-[600px] text-muted-foreground md:text-xl">
+                  <p className="max-w-[600px] text-foreground/80 dark:text-muted-foreground md:text-xl">
                     TrustTrade leverages blockchain, AI, and community arbitration to resolve business disputes efficiently and transparently.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button size="lg" className="group">
+                  <Button size="lg" className="group bg-primary hover:bg-primary/90">
                     Connect Wallet
                     <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                   <Link href="/disputes/new">
-                    <Button variant="secondary" size="lg">
+                    <Button variant="secondary" size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/80">
                       <FileText className="mr-2 h-5 w-5" /> File a Dispute
                     </Button>
                   </Link>
                   <Link href="/arbitration/join">
-                    <Button variant="outline" size="lg">
+                    <Button variant="outline" size="lg" className="border-primary/20 hover:border-primary/50 hover:bg-muted/50">
                        <UsersRound className="mr-2 h-5 w-5" /> Become Arbitrator
                     </Button>
                   </Link>
                 </div>
               </div>
-               {/* Placeholder for a potential graphic/image */}
+               {/* Placeholder with enhanced visibility */}
               <div className="hidden lg:flex items-center justify-center">
-                 {/* Example: Could use an SVG illustration or a 3D element later */}
-                <BrainCircuit size={250} className="text-primary opacity-20" />
+                <BrainCircuit size={250} className="text-primary opacity-30 dark:opacity-20" />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Features Section - Enhanced for better visibility */}
         <section id="features" className="w-full py-12 md:py-24 lg:py-32 bg-background">
-          <div className="container px-4 md:px-6">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
               <div className="space-y-2">
-                <div className="inline-block rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground">Key Features</div>
-                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">How TrustTrade Works</h2>
-                <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+                <div className="inline-block rounded-lg bg-secondary/30 px-3 py-1 text-sm text-foreground/90 dark:bg-muted dark:text-muted-foreground border border-border/50">Key Features</div>
+                <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl text-foreground">How TrustTrade Works</h2>
+                <p className="max-w-[900px] text-foreground/80 dark:text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
                   Our platform combines cutting-edge technologies to ensure a fair and efficient dispute resolution process.
                 </p>
               </div>
             </div>
             <div className="mx-auto grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {features.map((feature, index) => (
-                <Card key={index} className="flex flex-col items-center text-center p-6 transition-all hover:shadow-lg hover:scale-[1.02] bg-card hover:border-primary/50">
+                <Card key={index} className="flex flex-col items-center text-center p-6 transition-all hover:shadow-lg hover:scale-[1.02] bg-card border-border/50 hover:border-primary/70 shadow-sm">
                   <CardHeader className="p-0 mb-4">
                     {feature.icon}
-                    <CardTitle className="text-xl font-semibold">{feature.title}</CardTitle>
+                    <CardTitle className="text-xl font-semibold text-foreground">{feature.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <CardDescription>{feature.description}</CardDescription>
+                    <CardDescription className="text-foreground/75 dark:text-muted-foreground">{feature.description}</CardDescription>
                   </CardContent>
                 </Card>
               ))}
