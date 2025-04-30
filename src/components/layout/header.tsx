@@ -3,12 +3,14 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/theme-toggle';
-import { Wallet } from 'lucide-react'; // Assuming Wallet icon exists
+import { Wallet, LogOut, User } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Header() {
   const [isConnected, setIsConnected] = useState(false); // Mock wallet connection state
   const [walletAddress, setWalletAddress] = useState(''); // Mock wallet address
+  const { isAuthenticated, user, logout } = useAuth();
 
   const handleConnectWallet = () => {
     // Mock wallet connection logic
@@ -20,6 +22,10 @@ export default function Header() {
     // Mock wallet disconnection logic
     setIsConnected(false);
     setWalletAddress('');
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -39,6 +45,36 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
+          {isAuthenticated ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <User className="mr-2 h-4 w-4" />
+                  {user?.username || 'Account'}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem>
+                  <Link href="/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/login">Login</Link>
+              </Button>
+              <Button size="sm" asChild>
+                <Link href="/signup">Sign Up</Link>
+              </Button>
+            </div>
+          )}
+
           {isConnected ? (
              <DropdownMenu>
               <DropdownMenuTrigger asChild>

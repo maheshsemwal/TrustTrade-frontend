@@ -1,10 +1,25 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ShieldCheck, Users, BrainCircuit, Award, FileText, UsersRound, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import SimpleNavbar from '@/components/layout/simple-navbar';
+import { useAuth } from '@/hooks/use-auth';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/dashboard');
+    }
+  }, [isAuthenticated, router]);
+
   const features = [
     {
       icon: <ShieldCheck className="h-8 w-8 text-primary mb-4" />,
@@ -49,10 +64,12 @@ export default function Home() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 min-[400px]:flex-row">
-                  <Button size="lg" className="group bg-primary hover:bg-primary/90">
-                    Connect Wallet
-                    <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
+                  <Link href="/login">
+                    <Button size="lg" className="group bg-primary hover:bg-primary/90">
+                      Get Started
+                      <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </Link>
                   <Link href="/disputes/new">
                     <Button variant="secondary" size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/80">
                       <FileText className="mr-2 h-5 w-5" /> File a Dispute
