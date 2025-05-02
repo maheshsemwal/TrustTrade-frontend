@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, Plus, Search, Paperclip, Send, MoreVertical, UserMinus, UserX, MessageSquarePlus } from "lucide-react";
+import { MessageCircle, Plus, Search, Paperclip, Send, MoreVertical, UserMinus, UserX, MessageSquarePlus, FileText } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { DirectContact, useDirectChat } from "@/hooks/use-chat";
@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { FindContactsDialog } from "./find-contacts-dialog";
+import { CreateContractDialog } from "./create-contract-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,6 +41,8 @@ export default function DirectMessages() {
   const [newMessage, setNewMessage] = useState("");
   const [attachment, setAttachment] = useState<{ name: string; url: string; type: string } | null>(null);
   const [findContactsOpen, setFindContactsOpen] = useState(false);
+  const [createContractOpen, setCreateContractOpen] = useState(false);
+  const [contractContact, setContractContact] = useState<DirectContact | null>(null);
   const [contactToRemove, setContactToRemove] = useState<DirectContact | null>(null);
   const [conversationOpen, setConversationOpen] = useState(false);
   const [contactSearch, setContactSearch] = useState("");
@@ -104,6 +107,42 @@ export default function DirectMessages() {
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  // Handle opening contract creation dialog
+  const handleCreateContract = async (contact: DirectContact) => {
+    // First set the basic contact info
+    setContractContact(contact);
+    
+    try {
+      // Get the auth token from localStorage
+      
+      
+      // Fetch the full user profile to get their wallet address
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/${contact._id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (response.ok) {
+        const userData = await response.json();
+        
+        // Update the contract contact with the wallet address
+        setContractContact(prevContact => ({
+          ...prevContact!,
+          walletAddress: userData.walletAddress
+        }));
+      } else {
+        console.error('Failed to fetch contact wallet address');
+      }
+    } catch (error) {
+      console.error('Error fetching contact details:', error);
+    }
+    
+    // Open the dialog
+    setCreateContractOpen(true);
   };
 
   const handleAttachment = () => {
@@ -296,6 +335,16 @@ export default function DirectMessages() {
                                 Message
                               </DropdownMenuItem>
                               <DropdownMenuItem 
+                                className="cursor-pointer"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleCreateContract(contact);
+                                }}
+                              >
+                                <FileText className="h-4 w-4 mr-2" />
+                                Create Contract
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
                                 className="cursor-pointer text-red-600 focus:text-red-600"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -381,6 +430,15 @@ export default function DirectMessages() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
+                        className="text-blue-600 hover:text-blue-700"
+                        onClick={() => handleCreateContract(contact)}
+                      >
+                        <FileText className="h-4 w-4" />
+                        <span className="sr-only">Create Contract</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
                         className="text-red-600 hover:text-red-700"
                         onClick={() => setContactToRemove(contact)}
                       >
@@ -458,6 +516,15 @@ export default function DirectMessages() {
                       <Button 
                         variant="ghost" 
                         size="sm" 
+                        className="text-blue-600 hover:text-blue-700"
+                        onClick={() => handleCreateContract(contact)}
+                      >
+                        <FileText className="h-4 w-4" />
+                        <span className="sr-only">Create Contract</span>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
                         className="text-red-600 hover:text-red-700"
                         onClick={() => setContactToRemove(contact)}
                       >
@@ -489,6 +556,15 @@ export default function DirectMessages() {
         open={findContactsOpen} 
         onOpenChange={setFindContactsOpen}
         onStartConversation={handleStartConversation}
+      />
+      
+      {/* Create Contract Dialog */}
+      <CreateContractDialog
+        open={createContractOpen}
+        onOpenChange={setCreateContractOpen}
+        contactId={contractContact?._id}
+        contactName={contractContact?.username}
+        walletAddress={contractContact?.walletAddress}
       />
       
       {/* Remove Contact Confirmation Dialog */}

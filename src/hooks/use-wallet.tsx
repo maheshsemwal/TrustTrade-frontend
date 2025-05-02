@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ethers } from 'ethers';
 import type { BrowserProvider, JsonRpcSigner } from 'ethers';
+import { useStore, useAuth as useAuthStore } from '../lib/store';
+import { AuthService } from '../lib/auth';
 
 interface WalletState {
   account: string | null;
@@ -12,8 +14,6 @@ interface WalletState {
   error: Error | null;
 }
 
-const WALLET_STORAGE_KEY = 'trusttrade_wallet_address';
-
 export function useWallet() {
   const [walletState, setWalletState] = useState<WalletState>({
     account: null,
@@ -24,29 +24,33 @@ export function useWallet() {
     chainId: null,
     error: null,
   });
+  
+  // Get the user object from auth store
+  const authState = useAuthStore();
+  const userWalletAddress = authState.user?.walletAddress;
 
   const isWalletInstalled = useCallback(() => {
     return typeof window !== 'undefined' && window.ethereum !== undefined;
   }, []);
 
-  // Load wallet from localStorage on init
+  // Load wallet from user object on init
   useEffect(() => {
     const loadSavedWallet = async () => {
       if (!isWalletInstalled()) return;
       
-      const savedAddress = localStorage.getItem(WALLET_STORAGE_KEY);
-      if (savedAddress) {
+      // Use wallet address from user object instead of localStorage
+      if (userWalletAddress) {
         try {
           const provider = new ethers.BrowserProvider(window.ethereum);
           const accounts = await provider.listAccounts();
           
           // Check if the saved wallet is still available in the wallet
-          if (accounts.some(account => account.address.toLowerCase() === savedAddress.toLowerCase())) {
+          if (accounts.some(account => account.address.toLowerCase() === userWalletAddress.toLowerCase())) {
             const signer = await provider.getSigner();
             const network = await provider.getNetwork();
             
             setWalletState({
-              account: savedAddress,
+              account: userWalletAddress,
               provider,
               signer,
               isConnecting: false,
@@ -54,45 +58,28 @@ export function useWallet() {
               chainId: Number(network.chainId),
               error: null,
             });
-            
-            // Update the database with the wallet information
-            try {
-              await updateWalletInDatabase(savedAddress, Number(network.chainId));
-            } catch (error) {
-              console.error("Failed to update wallet in database:", error);
-            }
-          } else {
-            // Saved wallet is no longer available, clear localStorage
-            localStorage.removeItem(WALLET_STORAGE_KEY);
           }
         } catch (error) {
           console.error("Failed to reconnect wallet:", error);
-          localStorage.removeItem(WALLET_STORAGE_KEY);
         }
       }
     };
     
     loadSavedWallet();
-  }, [isWalletInstalled]);
+  }, [isWalletInstalled, userWalletAddress]);
 
   const updateWalletInDatabase = async (address: string, chainId: number) => {
     try {
-      const response = await fetch('/api/user/update-wallet', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          walletAddress: address,
-          chainId: chainId,
-        }),
+      // Use the AuthService.updateProfile to update the wallet address
+      const result = await AuthService.updateProfile({
+        walletAddress: address
       });
       
-      if (!response.ok) {
+      if (!result.success) {
         throw new Error('Failed to update wallet information in database');
       }
       
-      return await response.json();
+      return result.data;
     } catch (error) {
       console.error("Error updating wallet in database:", error);
       throw error;
@@ -128,10 +115,7 @@ export function useWallet() {
         error: null,
       });
       
-      // Save to localStorage
-      localStorage.setItem(WALLET_STORAGE_KEY, accounts[0]);
-      
-      // Save to database
+      // Save to database and update user object
       try {
         await updateWalletInDatabase(accounts[0], Number(network.chainId));
       } catch (error) {
@@ -150,9 +134,6 @@ export function useWallet() {
   }, [isWalletInstalled]);
 
   const disconnectWallet = useCallback(async () => {
-    // Clear from localStorage
-    localStorage.removeItem(WALLET_STORAGE_KEY);
-    
     // Clear from state
     setWalletState({
       account: null,
@@ -164,9 +145,9 @@ export function useWallet() {
       error: null,
     });
     
-    // Update database
+    // Update database with empty wallet address
     try {
-      await updateWalletInDatabase('', 0); // Clear wallet in database
+      await updateWalletInDatabase('', 0);
     } catch (error) {
       console.error("Failed to update wallet in database:", error);
     }
@@ -189,10 +170,7 @@ export function useWallet() {
           account: newAccount,
         }));
         
-        // Update localStorage
-        localStorage.setItem(WALLET_STORAGE_KEY, newAccount);
-        
-        // Update database
+        // Update database with new wallet address
         try {
           if (walletState.chainId) {
             await updateWalletInDatabase(newAccount, walletState.chainId);
@@ -209,6 +187,7 @@ export function useWallet() {
       // Update database with new chain ID
       if (walletState.account) {
         try {
+          // We only need to update the wallet address here, not the chain ID
           await updateWalletInDatabase(walletState.account, chainId);
         } catch (error) {
           console.error("Failed to update chain ID in database:", error);

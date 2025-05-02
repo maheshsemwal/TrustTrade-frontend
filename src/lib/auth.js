@@ -98,22 +98,25 @@ export const AuthService = {
       // Set Authorization header for request
       setAuthHeader(token);
       
-      // Use POST instead of PUT to match the backend route
+      // Use POST to match the backend route
       const response = await axios.post(`${API_BASE_URL}/api/users/profile`, userData);
       
       if (response.data) {
-        // The backend returns only userType and walletAddress, we need to create a proper user object
+        // Get current user from store
         const currentUser = useStore.getState().auth.user;
         
-        // Update only the user object with userType and walletAddress
+        // Backend returns userType and walletAddress directly in the response
         const updatedUser = {
           ...currentUser,
-          userType: response.data.user?.userType || response.data.userType || currentUser.userType,
-          walletAddress: response.data.user?.walletAddress || currentUser.walletAddress
+          userType: response.data.userType || currentUser.userType,
+          walletAddress: response.data.walletAddress || currentUser.walletAddress
         };
         
         // Update the user in the store
         useStore.getState().updateUser(updatedUser);
+        
+        // Remove the separate wallet address in localStorage if it exists
+        localStorage.removeItem('trusttrade_wallet_address');
         
         return { 
           success: true, 
