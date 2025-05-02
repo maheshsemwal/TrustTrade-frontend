@@ -118,7 +118,7 @@ export function CreateContractDialog({
       // For this demo, we're just using a toast notification
       toast({
         title: "Contract Created",
-        description: `Contract with ${contactName || recipientAddress} for ${amount} ETH has been initiated`,
+        description: `Contract with ${contactName || recipientAddress} for ${amount} POL has been initiated`,
       });
       
       onOpenChange(false);
@@ -201,7 +201,7 @@ export function CreateContractDialog({
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="amount">Amount (ETH)</Label>
+                <Label htmlFor="amount">Amount (POL)</Label>
                 <Input 
                   id="amount"
                   type="number" 
@@ -212,7 +212,7 @@ export function CreateContractDialog({
                   onChange={(e) => setAmount(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  The amount of ETH to transfer in this contract
+                  The amount of POL to transfer in this contract
                 </p>
               </div>
             </div>
