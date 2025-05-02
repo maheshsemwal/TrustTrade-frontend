@@ -9,6 +9,7 @@ import {ArbitratorView} from '@/components/dashboard/arbitrator-view';
 import { useAuth } from '@/hooks/use-auth';
 import DirectMessages from '@/components/dashboard/direct-messages';
 import ConnectionDiagnostic from '@/components/dashboard/connection-diagnostic';
+import { ConnectWalletButton } from '@/components/dashboard/connect-wallet-button';
 
 type UserRole = 'buyer' | 'seller' | 'arbitrator' | null;
 
@@ -35,7 +36,10 @@ export default function DashboardPage() {
 
   return (
     <div className="py-8">
-      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <ConnectWalletButton />
+      </div>
       
       {/* Connection Diagnostic */}
       <ConnectionDiagnostic />

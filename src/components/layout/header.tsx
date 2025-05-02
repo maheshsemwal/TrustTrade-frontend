@@ -4,21 +4,21 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/theme-toggle';
 import { Wallet, LogOut, User } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { useWallet } from '@/hooks/use-wallet';
 
 export default function Header() {
-  const [isConnected, setIsConnected] = useState(false); // Mock wallet connection state
-  const [walletAddress, setWalletAddress] = useState(''); // Mock wallet address
   const { isAuthenticated, user, logout } = useAuth();
+  const { 
+    account, 
+    isConnected, 
+    isConnecting, 
+    connectWallet, 
+    disconnectWallet 
+  } = useWallet();
 
-  const handleConnectWallet = () => {
-    // Mock wallet connection logic
-    setIsConnected(true);
-    setWalletAddress('0x123...abc'); // Mock address
-  };
-
-  const handleDisconnectWallet = () => {
+  const handleConnectWallet = async () => {
     // Mock wallet disconnection logic
     setIsConnected(false);
     setWalletAddress('');
@@ -79,30 +79,6 @@ export default function Header() {
                 <Link href="/signup">Sign Up</Link>
               </Button>
             </div>
-          )}
-
-          {isConnected ? (
-             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Wallet className="mr-2 h-4 w-4" />
-                  {walletAddress.substring(0, 5)}...{walletAddress.substring(walletAddress.length - 3)}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem>
-                  Balance: {/* Add balance logic here */} ETH
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleDisconnectWallet}>
-                  Disconnect
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button onClick={handleConnectWallet} size="sm">
-              <Wallet className="mr-2 h-4 w-4" /> Connect Wallet
-            </Button>
           )}
           <ModeToggle />
         </div>

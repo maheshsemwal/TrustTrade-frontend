@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { socketService } from '@/lib/socket';
 import { useToast } from '@/hooks/use-toast';
+import { Wallet } from 'lucide-react';
 
 export default function ConnectionDiagnostic() {
     const [status, setStatus] = useState({
@@ -14,7 +15,14 @@ export default function ConnectionDiagnostic() {
         transport: null as string | null,
         timestamp: new Date().toISOString(),
     });
+    const [walletStatus, setWalletStatus] = useState({
+        connected: false,
+        address: null as string | null,
+    });
     const { toast } = useToast();
+
+    // Check if MetaMask is installed
+    const isMetaMaskInstalled = typeof window !== 'undefined' && window.ethereum !== undefined;
 
     // Update status periodically
     useEffect(() => {
@@ -37,12 +45,104 @@ export default function ConnectionDiagnostic() {
         return () => clearInterval(interval);
     }, []);
 
+    // Check if wallet is already connected on component mount
+    useEffect(() => {
+        const checkWalletConnection = async () => {
+            if (isMetaMaskInstalled) {
+                try {
+                    // Check if we're already connected
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        setWalletStatus({
+                            connected: true,
+                            address: accounts[0],
+                        });
+                    }
+                } catch (error) {
+                    console.error("Error checking wallet connection:", error);
+                }
+            }
+        };
+
+        checkWalletConnection();
+    }, [isMetaMaskInstalled]);
+
+    // Handle MetaMask events
+    useEffect(() => {
+        if (!isMetaMaskInstalled) return;
+
+        const handleAccountsChanged = (accounts: string[]) => {
+            if (accounts.length === 0) {
+                // User disconnected wallet
+                setWalletStatus({
+                    connected: false,
+                    address: null,
+                });
+                toast({
+                    title: "Wallet Disconnected",
+                    description: "Your wallet has been disconnected",
+                });
+            } else {
+                // User switched accounts
+                setWalletStatus({
+                    connected: true,
+                    address: accounts[0],
+                });
+            }
+        };
+
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        
+        // Clean up event listener
+        return () => {
+            window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+        };
+    }, [isMetaMaskInstalled, toast]);
+
     const handleForceReconnect = () => {
         toast({
             title: "Reconnecting...",
             description: "Forcing WebSocket reconnection",
         });
         socketService.forceReconnect();
+    };
+
+    const handleConnectWallet = async () => {
+        if (!isMetaMaskInstalled) {
+            toast({
+                title: "MetaMask Not Installed",
+                description: "Please install MetaMask browser extension to connect your wallet",
+                variant: "destructive",
+            });
+            window.open('https://metamask.io/download/', '_blank');
+            return;
+        }
+
+        try {
+            // Request accounts from MetaMask
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            const userAddress = accounts[0];
+
+            setWalletStatus({
+                connected: true,
+                address: userAddress,
+            });
+
+            toast({
+                title: "Wallet Connected",
+                description: `Connected: ${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`,
+            });
+            
+            // In a production app, you might want to store this address in your user profile
+            // This would be handled by an API call to your backend
+        } catch (error) {
+            console.error("Error connecting wallet:", error);
+            toast({
+                title: "Connection Failed",
+                description: "Failed to connect to wallet. Please try again.",
+                variant: "destructive",
+            });
+        }
     };
 
     return (
@@ -85,7 +185,31 @@ export default function ConnectionDiagnostic() {
                         )}
                     </div>
                 </div>
-                <div className="pt-2">
+                {/* Wallet Connection Status */}
+                <div className="grid grid-cols-3 gap-2">
+                    <div>
+                        <span className="font-semibold">Wallet:</span>
+                    </div>
+                    <div className="col-span-2">
+                        {walletStatus.connected ? (
+                            <div className="flex items-center">
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 mr-1">
+                                    Connected
+                                </Badge>
+                                <span className="text-xs truncate">
+                                    {walletStatus.address ? 
+                                        `${walletStatus.address.slice(0, 6)}...${walletStatus.address.slice(-4)}` : 
+                                        'Unknown'}
+                                </span>
+                            </div>
+                        ) : (
+                            <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                                Not Connected
+                            </Badge>
+                        )}
+                    </div>
+                </div>
+                <div className="pt-2 space-y-2">
                     <Button 
                         variant="outline" 
                         size="sm" 
@@ -93,6 +217,16 @@ export default function ConnectionDiagnostic() {
                         className="w-full text-xs"
                     >
                         Force WebSocket Reconnection
+                    </Button>
+                    
+                    <Button 
+                        variant={walletStatus.connected ? "outline" : "default"}
+                        size="sm" 
+                        onClick={handleConnectWallet}
+                        className="w-full text-xs"
+                    >
+                        <Wallet className="mr-2 h-4 w-4" />
+                        {walletStatus.connected ? 'Reconnect Wallet' : 'Connect Wallet'}
                     </Button>
                 </div>
             </CardContent>
