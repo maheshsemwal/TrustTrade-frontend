@@ -57,8 +57,14 @@ export default function ProfileSettingsPage() {
       });
 
       if (result) {
-        setSuccess('Profile updated successfully');
+        setSuccess('Profile updated successfully! Wallet address saved.');
         setIsEditing(false);
+        
+        // No need to manually update localStorage - the auth service's updateProfile 
+        // function already updates the user in the store, which syncs with localStorage
+        
+        // Remove any direct wallet address entry in localStorage that may exist from before
+        localStorage.removeItem('trusttrade_wallet_address');
       }
     } catch (err) {
       setError('Failed to update profile');
