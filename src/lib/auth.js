@@ -40,7 +40,7 @@ export const AuthService = {
   
   /**
    * Register a new user
-   * @param {Object} userData - User registration data (username, email, password, walletAddress)
+   * @param {Object} userData - User registration data (username, email, password, walletAddress, userType)
    * @returns {Promise} - User data or error
    */
   signup: async (userData) => {
@@ -49,7 +49,8 @@ export const AuthService = {
       username: userData.name || userData.username, // Support both name and username
       email: userData.email,
       password: userData.password,
-      walletAddress: userData.walletAddress || null
+      walletAddress: userData.walletAddress || null,
+      userType: userData.userType || 'buyer'  // Default to buyer if not specified
     };
     
     try {
@@ -79,6 +80,56 @@ export const AuthService = {
       return { 
         success: false, 
         error: error.response?.data?.message || 'Registration failed' 
+      };
+    }
+  },
+  
+  /**
+   * Update user profile
+   * @param {Object} userData - User profile data to update (userType, walletAddress)
+   * @returns {Promise} - Updated user data or error
+   */
+  updateProfile: async (userData) => {
+    try {
+      const token = useStore.getState().auth.token;
+      if (!token) {
+        return { success: false, error: 'Not authenticated' };
+      }
+      
+      // Set Authorization header for request
+      setAuthHeader(token);
+      
+      // Use POST instead of PUT to match the backend route
+      const response = await axios.post(`${API_BASE_URL}/api/users/profile`, userData);
+      
+      if (response.data) {
+        // The backend returns only userType and walletAddress, we need to create a proper user object
+        const currentUser = useStore.getState().auth.user;
+        
+        // Update only the user object with userType and walletAddress
+        const updatedUser = {
+          ...currentUser,
+          userType: response.data.user?.userType || response.data.userType || currentUser.userType,
+          walletAddress: response.data.user?.walletAddress || currentUser.walletAddress
+        };
+        
+        // Update the user in the store
+        useStore.getState().updateUser(updatedUser);
+        
+        return { 
+          success: true, 
+          data: { 
+            user: updatedUser 
+          } 
+        };
+      }
+      
+      return { success: false, error: 'Failed to update profile' };
+    } catch (error) {
+      console.error('Profile update error:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.msg || 'Profile update failed' 
       };
     }
   },

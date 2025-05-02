@@ -7,11 +7,12 @@ import Header from '@/components/layout/header';
 import Footer from '@/components/layout/footer';
 import type { PropsWithChildren } from 'react';
 import { useAuth } from '@/hooks/use-auth';
+import { socketService } from '@/lib/socket';
 
 // This layout wrapper provides shared elements within the authenticated part of the app
 // and ensures that only authenticated users can access these routes
 export default function AppLayout({ children }: PropsWithChildren) {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, token } = useAuth();
   const router = useRouter();
   
   // Protect all routes under the (app) group
@@ -20,6 +21,19 @@ export default function AppLayout({ children }: PropsWithChildren) {
       router.push('/login');
     }
   }, [isAuthenticated, loading, router]);
+
+  // Initialize WebSocket connection for authenticated users
+  useEffect(() => {
+    if (isAuthenticated && token) {
+      // Initialize socket connection
+      socketService.initialize();
+      
+      // Cleanup socket connection on unmount
+      return () => {
+        socketService.disconnect();
+      };
+    }
+  }, [isAuthenticated, token]);
 
   // Show nothing while checking authentication
   if (!isAuthenticated) {
