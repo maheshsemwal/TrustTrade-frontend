@@ -14,11 +14,9 @@ export const useStore = create(
     (set, get) => ({
       // Authentication state
       auth: {
-        user: null,  // User profile information
+        user: null,  // User profile information (contains userType and walletAddress)
         token: null, // Session token
         isAuthenticated: false,
-        userType: null, // 'buyer', 'seller', 'arbitrator'
-        walletAddress: null, // User's wallet address
       },
       
       // Application state
@@ -38,8 +36,7 @@ export const useStore = create(
           user: userData,
           token: token,
           isAuthenticated: true,
-          userType: userData.userType || null,
-          walletAddress: userData.walletAddress || null,
+          // Remove the duplicate walletAddress at the root level
         },
       })),
       
@@ -48,8 +45,7 @@ export const useStore = create(
           user: null,
           token: null,
           isAuthenticated: false,
-          userType: null,
-          walletAddress: null,
+          // Remove the deprecated walletAddress property
         },
       })),
       
@@ -59,8 +55,8 @@ export const useStore = create(
           user: {
             ...state.auth.user,
             ...userData,
-          },
-          walletAddress: userData.walletAddress || state.auth.walletAddress,
+          }
+          // Remove the duplicate walletAddress at the root level
         },
       })),
       
@@ -111,8 +107,6 @@ export const useStore = create(
           user: state.auth.user, 
           token: state.auth.token, 
           isAuthenticated: state.auth.isAuthenticated,
-          userType: state.auth.userType,
-          walletAddress: state.auth.walletAddress,
         },
         app: {
           darkMode: state.app.darkMode
@@ -127,7 +121,7 @@ export const useAuth = () => useStore((state) => state.auth);
 export const useUser = () => useStore((state) => state.auth.user);
 export const useToken = () => useStore((state) => state.auth.token);
 export const useIsAuthenticated = () => useStore((state) => state.auth.isAuthenticated);
-export const useUserType = () => useStore((state) => state.auth.userType);
-export const useWalletAddress = () => useStore((state) => state.auth.walletAddress);
+export const useUserType = () => useStore((state) => state.auth.user?.userType);
+export const useWalletAddress = () => useStore((state) => state.auth.user?.walletAddress);
 export const useAppState = () => useStore((state) => state.app);
 export const useCurrentDispute = () => useStore((state) => state.currentDispute);

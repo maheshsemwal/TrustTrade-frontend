@@ -19,6 +19,7 @@ export const useAuth = () => {
   // These references are stable and won't change between renders
   const storeLogin = useStore.getState().login;
   const storeLogout = useStore.getState().logout;
+  const storeUpdateUser = useStore.getState().updateUser;
   
   /**
    * Log in with email and password
@@ -79,6 +80,36 @@ export const useAuth = () => {
   }, [router]);
   
   /**
+   * Update user profile - handles updating userType and walletAddress
+   */
+  const updateUser = useCallback(async (userData: {
+    userType?: string;
+    walletAddress?: string;
+    [key: string]: any;
+  }) => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const result = await AuthService.updateProfile(userData);
+      
+      if (result.success) {
+        // Update the user data in the local store
+        storeUpdateUser(result.data?.user || userData);
+        return true;
+      } else {
+        setError(result.error);
+        return false;
+      }
+    } catch (err) {
+      setError('Failed to update profile');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }, [storeUpdateUser]);
+  
+  /**
    * Log the user out
    */
   const logout = useCallback(() => {
@@ -91,13 +122,14 @@ export const useAuth = () => {
     user: authState.user,
     isAuthenticated: authState.isAuthenticated,
     token: authState.token,
-    userType: authState.userType,
-    walletAddress: authState.walletAddress,
+    userType: authState.user?.userType,
+    walletAddress: authState.user?.walletAddress,
     
     // Auth operations
     login,
     signup,
     logout,
+    updateUser,
     
     // UI state
     loading,

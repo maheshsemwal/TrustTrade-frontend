@@ -17,7 +17,7 @@ export default function SignupPage() {
     email: '',
     password: '',
     walletAddress: '',
-    userType: 'buyer' // This is for frontend use
+    userType: 'buyer' // Default to buyer, make it required
   });
   
   const router = useRouter();
@@ -92,6 +92,7 @@ export default function SignupPage() {
               <Select 
                 value={form.userType} 
                 onValueChange={handleUserTypeChange}
+                required
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select User Type" />
