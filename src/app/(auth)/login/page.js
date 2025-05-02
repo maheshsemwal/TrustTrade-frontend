@@ -5,16 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import Link from 'next/link';
-import { Wallet, Mail, AlertCircle } from 'lucide-react';
+import { Mail, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [address, setAddress] = useState('');
   const router = useRouter();
   
   // Use our custom authentication hook
@@ -31,38 +29,6 @@ export default function LoginPage() {
   const handleEmailLogin = async (e) => {
     e.preventDefault();
     await login(email, password);
-  };
-
-  // Handle MetaMask Login
-  const handleMetaMaskLogin = async () => {
-    if (!window.ethereum) {
-      alert('MetaMask is not installed');
-      return;
-    }
-
-    try {
-      // Request user accounts from MetaMask
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-      const userAddress = accounts[0];
-      setAddress(userAddress);
-
-      // In a production app, you would sign a message and verify on the backend
-      // Then login with a JWT token from your backend
-      const message = `Login to TrustTrade with address: ${userAddress}`;
-      const signature = await window.ethereum.request({
-        method: 'personal_sign',
-        params: [message, userAddress],
-      });
-
-      // Now you'd verify this on your backend and get a token
-      // For now we'll mock this with our regular login
-      // In a real app, replace with your wallet authentication flow
-      await login(userAddress, signature);
-      
-    } catch (error) {
-      console.error(error);
-      alert('MetaMask login failed');
-    }
   };
 
   return (
@@ -106,32 +72,6 @@ export default function LoginPage() {
               {loading ? 'Logging in...' : 'Login with Email'}
             </Button>
           </form>
-
-          <div className="relative my-4">
-            <div className="absolute inset-0 flex items-center">
-              <Separator />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or</span>
-            </div>
-          </div>
-
-          <Button
-            onClick={handleMetaMaskLogin}
-            disabled={loading}
-            variant="outline"
-            className="w-full bg-[#f6851b]/10 hover:bg-[#f6851b]/20 text-[#f6851b] hover:text-[#f6851b]"
-          >
-            <Wallet className="mr-2 h-4 w-4" />
-            {loading ? 'Connecting...' : 'Login with MetaMask'}
-          </Button>
-
-          {/* Display MetaMask Address */}
-          {address && (
-            <div className="mt-4 text-center text-sm text-muted-foreground">
-              Connected with: {address.slice(0, 6)}...{address.slice(-4)}
-            </div>
-          )}
         </CardContent>
         <CardFooter className="flex flex-col">
           <div className="text-sm text-center text-muted-foreground mt-2">

@@ -49,7 +49,6 @@ export const AuthService = {
       username: userData.name || userData.username, // Support both name and username
       email: userData.email,
       password: userData.password,
-      walletAddress: userData.walletAddress || null,
       userType: userData.userType || 'buyer'  // Default to buyer if not specified
     };
     

@@ -16,7 +16,6 @@ export default function SignupPage() {
     username: '', // Changed from name to username to match backend
     email: '',
     password: '',
-    walletAddress: '',
     userType: 'buyer' // Default to buyer, make it required
   });
   
@@ -103,14 +102,6 @@ export default function SignupPage() {
                   <SelectItem value="arbitrator">Arbitrator</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-            <div className="space-y-2">
-              <Input
-                name="walletAddress"
-                placeholder="Wallet Address (Optional)"
-                value={form.walletAddress}
-                onChange={handleChange}
-              />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
               <UserPlus className="mr-2 h-4 w-4" />
